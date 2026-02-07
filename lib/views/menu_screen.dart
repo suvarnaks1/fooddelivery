@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zartek/models/provider/cart_provider.dart';
+import 'package:zartek/views/order_summery_screen.dart';
 import '../viewmodels/menu_viewmodel.dart';
 import '../utils/api_status.dart';
 
@@ -56,11 +57,16 @@ class _MenuScreenState extends State<MenuScreen> {
                 Stack(
                   alignment: Alignment.topRight,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.all(12),
-                      child: Icon(Icons.shopping_cart),
-  
-
+                       IconButton(
+                      icon: const Icon(Icons.shopping_cart),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const OrderSummaryScreen(),
+                          ),
+                        );
+                      },
                     ),
                     if (cart.totalCount > 0)
                       Positioned(
