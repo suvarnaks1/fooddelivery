@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:zartek/models/provider/cart_provider.dart';
 import '../viewmodels/menu_viewmodel.dart';
 import '../utils/api_status.dart';
+
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -19,71 +21,85 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // 🔹 DRAWER ADDED
-      drawer: _buildDrawer(),
+    final cart = context.watch<CartProvider>();
 
-      appBar: AppBar(
-        // ❌ removed title
-        elevation: 1,
-        actions: const [
-          Padding(
-            padding: EdgeInsets.all(12),
-            child: Icon(Icons.shopping_cart),
-          )
-        ],
-      ),
+    return Consumer<MenuViewModel>(
+      builder: (context, vm, _) {
+        if (vm.status == ApiStatus.loading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-      body: Consumer<MenuViewModel>(
-        builder: (context, vm, _) {
-          if (vm.status == ApiStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+        if (vm.status == ApiStatus.error) {
+          return Scaffold(
+            body: Center(child: Text(vm.errorMessage)),
+          );
+        }
 
-          if (vm.status == ApiStatus.error) {
-            return Center(child: Text(vm.errorMessage));
-          }
+        final categories = vm.menu!.categories;
 
-          final categories = vm.menu!.categories;
+        return DefaultTabController(
+          length: categories.length,
+          child: Scaffold(
+            drawer: _buildDrawer(),
+            appBar: AppBar(
+              
+              bottom: TabBar(
+                isScrollable: true,
+                indicatorColor: Colors.white,
+                tabs: categories
+                    .map((c) => Tab(text: c.name))
+                    .toList(),
+              ),
+              actions: [
+                Stack(
+                  alignment: Alignment.topRight,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Icon(Icons.shopping_cart),
+  
 
-          return DefaultTabController(
-            length: categories.length,
-            child: Column(
-              children: [
-                // 🔴 CATEGORY TABS
-                Material(
-                  color: Colors.white,
-                  child: TabBar(
-                    isScrollable: true,
-                    labelColor: Colors.red,
-                    unselectedLabelColor: Colors.grey,
-                    indicatorColor: Colors.red,
-                    tabs: categories
-                        .map((c) => Tab(text: c.name))
-                        .toList(),
-                  ),
-                ),
-
-                // 🔽 TAB CONTENT
-                Expanded(
-                  child: TabBarView(
-                    children: categories.map((category) {
-                      return ListView.builder(
-                        itemCount: category.dishes.length,
-                        itemBuilder: (context, index) {
-                          return _DishCard(dish: category.dishes[index]);
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ),
+                    ),
+                    if (cart.totalCount > 0)
+                      Positioned(
+                        right: 6,
+                        top: 6,
+                        child: CircleAvatar(
+                          radius: 9,
+                          backgroundColor: Colors.red,
+                          child: Text(
+                            cart.totalCount.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                      )
+                  ],
+                )
               ],
             ),
-          );
-        },
-      ),
+
+            // TAB CONTENT
+            body: TabBarView(
+              children: categories.map((category) {
+                return ListView(
+                  children: category.dishes
+                      .map((dish) => DishCard(dish: dish))
+                      .toList(),
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
     );
   }
+}
+
 
   // ================= DRAWER UI =================
   Drawer _buildDrawer() {
@@ -134,27 +150,29 @@ class _MenuScreenState extends State<MenuScreen> {
             leading: const Icon(Icons.logout),
             title: const Text("Log out"),
             onTap: () {
-              Navigator.pop(context);
+              
             },
           ),
         ],
       ),
     );
   }
-}
-class _DishCard extends StatelessWidget {
+class DishCard extends StatelessWidget {
   final dish;
 
-  const _DishCard({required this.dish});
+  const DishCard({super.key, required this.dish});
 
   @override
   Widget build(BuildContext context) {
+    final cart = context.watch<CartProvider>();
+    final String dishId = dish.id.toString();
+    final count = cart.getItemCount(dishId);
+
     return Padding(
       padding: const EdgeInsets.all(12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // LEFT CONTENT
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +211,7 @@ class _DishCard extends StatelessWidget {
                 const SizedBox(height: 4),
 
                 Text(
-                  "₹${dish.price}  •  ${dish.calories} calories",
+                  "₹${dish.price} • ${dish.calories} calories",
                   style: const TextStyle(fontSize: 13),
                 ),
 
@@ -209,7 +227,7 @@ class _DishCard extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                // ADD BUTTON
+                // ADD / REMOVE BUTTON
                 Container(
                   width: 120,
                   height: 36,
@@ -219,16 +237,35 @@ class _DishCard extends StatelessWidget {
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: const [
-                      Icon(Icons.remove, color: Colors.white),
+                    children: [
+                      GestureDetector(
+                        onTap: count > 0
+                            ? () => cart.removeItem(dishId)
+                            : null,
+                        child: const Icon(Icons.remove,
+                            color: Colors.white),
+                      ),
                       Text(
-                        "0",
-                        style: TextStyle(
+                        count.toString(),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Icon(Icons.add, color: Colors.white),
+                      GestureDetector(
+                        onTap: () => cart.addItem(
+  CartItem(
+    id: dishId,
+    name: dish.name,
+    price: double.parse(dish.price),
+    calories: dish.calories,
+    isVeg: dish.isVeg,
+  ),
+),
+
+                        child: const Icon(Icons.add,
+                            color: Colors.white),
+                      ),
                     ],
                   ),
                 ),
@@ -248,7 +285,6 @@ class _DishCard extends StatelessWidget {
             ),
           ),
 
-          // IMAGE
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: Image.network(
