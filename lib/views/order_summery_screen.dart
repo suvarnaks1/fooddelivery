@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/provider/cart_provider.dart';
+import '../provider/cart_provider.dart';
 
 class OrderSummaryScreen extends StatelessWidget {
   const OrderSummaryScreen({super.key});
@@ -8,14 +8,16 @@ class OrderSummaryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
+    final items = cart.items.values.toList();
 
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(),
+        leading: const BackButton(),
         title: const Text("Order Summary"),
       ),
       body: Column(
         children: [
+          // TOP GREEN BAR
           Container(
             margin: const EdgeInsets.all(12),
             padding: const EdgeInsets.all(12),
@@ -25,17 +27,18 @@ class OrderSummaryScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              "${cart.cartItems.length} Dishes - ${cart.totalCount} Items",
+              "${items.length} Dishes - ${cart.totalCount} Items",
               style: const TextStyle(color: Colors.white),
               textAlign: TextAlign.center,
             ),
           ),
 
+          // ITEM LIST
           Expanded(
-            child: ListView(
-              children: cart.cartItems.map((entry) {
-                final item = entry.key;
-                final qty = entry.value;
+            child: ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
 
                 return Padding(
                   padding: const EdgeInsets.all(12),
@@ -56,8 +59,9 @@ class OrderSummaryScreen extends StatelessWidget {
                             width: 8,
                             height: 8,
                             decoration: BoxDecoration(
-                              color:
-                                  item.isVeg ? Colors.green : Colors.red,
+                              color: item.isVeg
+                                  ? Colors.green
+                                  : Colors.red,
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -75,7 +79,8 @@ class OrderSummaryScreen extends StatelessWidget {
                               style: const TextStyle(
                                   fontWeight: FontWeight.bold),
                             ),
-                            Text("INR ${item.price.toStringAsFixed(2)}"),
+                            Text(
+                                "INR ${item.price.toStringAsFixed(2)}"),
                             Text("${item.calories} calories"),
                           ],
                         ),
@@ -83,6 +88,7 @@ class OrderSummaryScreen extends StatelessWidget {
 
                       Column(
                         children: [
+                          // + - BUTTON
                           Container(
                             width: 110,
                             height: 36,
@@ -101,12 +107,13 @@ class OrderSummaryScreen extends StatelessWidget {
                                       color: Colors.white),
                                 ),
                                 Text(
-                                  qty.toString(),
+                                  item.quantity.toString(),
                                   style: const TextStyle(
                                       color: Colors.white),
                                 ),
                                 GestureDetector(
-                                  onTap: () => cart.addItem(item),
+                                  onTap: () =>
+                                      cart.addItem(item),
                                   child: const Icon(Icons.add,
                                       color: Colors.white),
                                 ),
@@ -115,19 +122,20 @@ class OrderSummaryScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            "INR ${(item.price * qty).toStringAsFixed(2)}",
+                            "INR ${(item.price * item.quantity).toStringAsFixed(2)}",
                           ),
                         ],
                       )
                     ],
                   ),
                 );
-              }).toList(),
+              },
             ),
           ),
 
-          Divider(),
+          const Divider(),
 
+          // TOTAL
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -147,6 +155,7 @@ class OrderSummaryScreen extends StatelessWidget {
             ),
           ),
 
+          // PLACE ORDER
           Padding(
             padding: const EdgeInsets.all(16),
             child: SizedBox(

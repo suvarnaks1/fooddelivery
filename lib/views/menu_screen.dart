@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:zartek/models/provider/cart_provider.dart';
+import 'package:zartek/provider/cart_provider.dart';
 import 'package:zartek/views/order_summery_screen.dart';
 import '../viewmodels/menu_viewmodel.dart';
 import '../utils/api_status.dart';
