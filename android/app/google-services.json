@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "201595636610",
+    "project_id": "zartek-d160c",
+    "storage_bucket": "zartek-d160c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:201595636610:android:9929cfe4f6211995981d9b",
+        "android_client_info": {
+          "package_name": "com.example.zartek"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSEbH95gyezwwgtMjsTKeWlULzNzd2dig"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
