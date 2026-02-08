@@ -12,7 +12,20 @@
           "package_name": "com.example.zartek"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "201595636610-fhl2293kmac12ee9vjalvdtsu1v1n39j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.zartek",
+            "certificate_hash": "75e5baa0453b1a58f3d11949a04fca5f3bd80c83"
+          }
+        },
+        {
+          "client_id": "201595636610-dv3gkg5s96o9gv23q816avclo3p1cm4d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBSEbH95gyezwwgtMjsTKeWlULzNzd2dig"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "201595636610-dv3gkg5s96o9gv23q816avclo3p1cm4d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "201595636610-73rseggl4b87e3dp1savahpr1co1608h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.zartek"
+              }
+            }
+          ]
         }
       }
     }

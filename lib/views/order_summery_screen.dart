@@ -162,6 +162,14 @@ class OrderSummaryScreen extends StatelessWidget {
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+    backgroundColor: Colors.green.shade900,
+    foregroundColor: Colors.white,
+    elevation: 4,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10),
+    ),
+  ),
                 onPressed: () {
                   showDialog(
                     context: context,
